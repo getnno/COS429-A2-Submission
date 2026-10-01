@@ -76,17 +76,13 @@ def fn_conv(input, params, hyper_params, backprop, dv_output=None):
                 grad['b'][j] += np.sum(dv_output[:, :, j, i])
         grad['b'] /= batch_size #normalize everything to batch size
 #dL/dI
+        #sum loss over filters for each image to get derivative with respect to image
         for i in range(batch_size):
             for j in range(num_filters):
                 for k in range(filter_depth):
                     dv_input[:, :, k, i] += scipy.signal.correlate(dv_output[:, :, j, i], params['W'][:, :, k, j],mode = 'full')
-        #sum loss over filters for each image to get derivative with respect to image
-        # for imageIndex, image in enumerate(output):
-        #     for filterIndex, filter in enumerate(params['W']):
-        #         for depthIndex, depth in enumerate(input[imageIndex]):
                     # for each level within each image, cross correlate between the output at the desired depth and the filter at the desired depth
                     # sum this for each depth level within the input, since each depth level in the input combines with a corresponding level in the filter to form a level in the output
-        #             dv_input[:, :, depthIndex, imageIndex] += scipy.signal.correlate(dv_output[:, :, filterIndex, imageIndex], params['W'][:, :, depthIndex, filterIndex],mode = 'full')
         # no need to normalize–we get a dv_input for every image, since we'll use this to backpropogate further             
                 
     return output, dv_input, grad
